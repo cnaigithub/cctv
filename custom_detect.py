@@ -67,13 +67,8 @@ def xywh2xyxy(lst):
 
 def detect(save_img=False, source = '',bo = True):
     weights, view_img, save_txt, imgsz, trace = opt.weights, opt.view_img, opt.save_txt, opt.img_size, not opt.no_trace
-    save_img = not opt.nosave and not source.endswith('.txt')  # save inference images
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
         ('rtsp://', 'rtmp://', 'http://', 'https://'))
-
-    # Directories
-    save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
-    (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
     # Initialize
     set_logging()
@@ -87,7 +82,6 @@ def detect(save_img=False, source = '',bo = True):
 
     if trace:
         model = TracedModel(model, device, opt.img_size)
-
     if half:
         model.half()  # to FP16
 
@@ -124,7 +118,7 @@ def detect(save_img=False, source = '',bo = True):
     with open('vsize_dic.pkl', 'rb') as f:
         vsize_dic = pickle.load(f)
 
-    label_gt = f'{source}/{source_fname}.txt'
+    label_gt = f'{source.split(source_fname)[0]}/{source_fname}.txt'
     gt_f = open(label_gt, 'r')
     lines = [l.strip() for l in gt_f.readlines()]
     gt_f.close()
@@ -168,9 +162,6 @@ def detect(save_img=False, source = '',bo = True):
         # Apply Classifier
         if classify:
             pred = apply_classifier(pred, modelc, img, im0s)
-        
-        #Stats calculation
-        
 
 
         # Process detections
@@ -180,9 +171,6 @@ def detect(save_img=False, source = '',bo = True):
             else:
                 p, s, im0, frame = path, '', im0s, getattr(dataset, 'frame', 0)
 
-            p = Path(p)  # to Path
-            save_path = str(save_dir / p.name)  # img.jpg
-            txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # img.txt
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
 
             
@@ -196,22 +184,9 @@ def detect(save_img=False, source = '',bo = True):
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
 
-                # Write results
-                for *xyxy, conf, cls in reversed(det):
-                    if save_txt:  # Write to file
-                        xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
-                        line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
-                        with open(txt_path + '.txt', 'a') as f:
-                            f.write(('%g ' * len(line)).rstrip() % line + '\n')
-
-                    if save_img or view_img:  # Add bbox to image
-                        label = f'{names[int(cls)]} {conf:.2f}'
-                        plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
-
-
-
             # Print time (inference + NMS)
             print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
+        
         no_target = False
 
         if str(seen) in labels_per_frame.keys():
@@ -347,7 +322,7 @@ if __name__ == '__main__':
             prs = []
             rcs = []
 
-            with open('./f1_res/res5.txt', 'w') as res_txt:
+            with open(f'./f1_res/{opt.name}', 'w') as res_txt:
                 rt = opt.source
                 files = [i for i in os.listdir(rt) if not i.startswith('.')]
                 for f_idx, file in enumerate(files):
