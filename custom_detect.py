@@ -232,6 +232,7 @@ def detect(save_img=False, source = '',bo = True):
                 fn +=1
         
         else: #standard way of evaluating f1 score
+            # breakpoint()
             if not no_target:
                 for p_box in predbox:
                     max_iou=0
@@ -241,7 +242,6 @@ def detect(save_img=False, source = '',bo = True):
                     else:
                         skip_frame = True
                         break
-
                     for idx, t_box in enumerate(tbox):
                         iou = (calculate_iou(p_box,t_box))
                         if iou > max_iou:
@@ -254,6 +254,7 @@ def detect(save_img=False, source = '',bo = True):
                     else:
                         fp+=1
                 if skip_frame:
+                    f1s.append(0.)
                     seen+=1
                     continue
                 fn = len(tbox)
@@ -286,6 +287,7 @@ def detect(save_img=False, source = '',bo = True):
         if len(f1s) ==0: 
             return 0
         else:
+            # breakpoint()
             return sum(f1s) / len(f1s)
 
 if __name__ == '__main__':
@@ -329,6 +331,7 @@ if __name__ == '__main__':
                     print(f_idx, file)
                     if '.mp4' in file:
                         #regular
+                            # breakpoint()
                         ret = detect(source = os.path.join(rt,file), bo=False)
                         f1s.append(ret)
                         print(f'FILE NAME : [{file}] f1 score: {ret}')
