@@ -334,4 +334,5 @@ if __name__ == '__main__':
                         print(f'FILE NAME : [{file}] f1 score: {ret}')
                         res_txt.write(f'FILE NAME : [{file}] f1 score: {ret}\n')
                         print(f'f1 score: {sum(f1s)/len(f1s)}')
-                breakpoint()
+                res_txt.write(f'f1 score: {sum(f1s)/len(f1s)}')
+                res_txt.close()
