@@ -2,6 +2,7 @@
 
 ## Data Preparation
 - 테스트 할 데이터 (영상, GT 레이블)들을 모두 단일 폴더에 이동 하여 저장 e.g. /home/user/DATASET_PATH
+- 모델 체크포인트 링크 ( https://github.com/WongKinYiu/yolov7/releases/download/v0.1/yolov7.pt )에서 다운로드 후 현재 디렉토리에 저장 (/yolov7)
 
 ## Installation
 - Dependency 세팅 
